@@ -8,7 +8,7 @@
       float: left;
       width: 50%;
       text-align: center;
-      background: #888;
+      background: #777;
       height: 3000px;
     }
     .timer input {
@@ -106,12 +106,12 @@
       
       if (aMinutes == 0 && aSeconds == 0) {
         winner = 'b';
-        document.getElementById("timers").className = '';
+        document.body.className = '';
         a.className = a.className + " loser";
         b.className = b.className + " winner";
       } else if (bMinutes == 0 && bSeconds == 0) {
         winner = 'a';
-        document.getElementById("timers").className = '';
+        document.body.className = '';
         a.className = a.className + " winner";
         b.className = b.className + " loser";
       } else {
@@ -158,11 +158,11 @@
         switchTime = new Date();
         pullTimesFromInput();
         mainLoopTimeout = window.setTimeout(mainLoop, 1000 / 60);
-        document.getElementById("timers").className = "started";
+        document.body.className = "started";
       } else {
         window.clearTimeout(mainLoopTimeout);
         mainLoopTimeout = undefined;
-        document.getElementById("timers").className = "";
+        document.body.className = "";
       }
     }
 
