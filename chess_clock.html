@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Our Chess Clock Thing</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    .timer  {
+      float: left;
+      width: 50%;
+      text-align: center;
+      background: #888;
+      height: 3000px;
+    }
+    .timer input {
+      margin: 47% 0 0;
+      font-size: 100px;
+      text-align: center;
+      width: 75%;
+      border: solid 4px black;
+      background: none;
+    }
+    .running { background: white; }
+    .started .timer input         { opacity: 0.3; border: solid 4px transparent;}
+    .started .timer.running input { opacity: 1.0; color: green; }
+    .loser   { background: red; }
+    .winner  { background: green; }
+  </style>
+</head>
+<body>
+  <div id="timers">
+    <div id="a" class="timer">
+      <input type="text" value="05:00" />
+    </div>
+    <div id="b" class="timer">
+      <input type="text" value="05:00" />
+    </div>
+  </div>
+  <script>
+    var a      = document.getElementById("a");
+    var aTimer = a.getElementsByTagName('input')[0];
+    var b      = document.getElementById("b");
+    var bTimer = b.getElementsByTagName('input')[0];
+
+    var switchTime, aRemainingMsAtSwitch, bRemainingMsAtSwitch;
+
+    var mainLoopTimeout;
+    var runningTimer = 'a';
+    var winner;
+
+    function pullTimesFromInput () {
+      aMinutes = aTimer.value.split(':')[0] || 15;
+      aSeconds = aTimer.value.split(':')[1] || 0;
+      bMinutes = bTimer.value.split(':')[0] || 15;
+      bSeconds = bTimer.value.split(':')[1] || 0;
+
+      aRemainingMsAtSwitch = (parseInt(aMinutes) * 60 + parseInt(aSeconds)) * 1000;
+      bRemainingMsAtSwitch = (parseInt(bMinutes) * 60 + parseInt(bSeconds)) * 1000;
+    }
+
+    function getRemainingMs () {
+      var currentTime            = new Date();
+      var elapsedTimeSinceSwitch = currentTime - switchTime;
+      var aRemainingMs, bRemainingMs;
+  
+      if (runningTimer == 'a') {
+        aRemainingMs = aRemainingMsAtSwitch - elapsedTimeSinceSwitch;
+        bRemainingMs = bRemainingMsAtSwitch;
+      } else {
+        aRemainingMs = aRemainingMsAtSwitch;        
+        bRemainingMs = bRemainingMsAtSwitch - elapsedTimeSinceSwitch;
+      };
+
+      return {
+        a:           aRemainingMs,
+        b:           bRemainingMs,
+        currentTime: currentTime
+      };
+    }
+
+    function mainLoop () {
+      if (winner) { return; }
+      var remainingMs = getRemainingMs();
+
+      aMinutes = parseInt((remainingMs.a + 999)/ 1000  / 60);
+      aSeconds = parseInt((remainingMs.a + 999)/ 1000) % 60 ;
+      bMinutes = parseInt((remainingMs.b + 999)/ 1000  / 60);
+      bSeconds = parseInt((remainingMs.b + 999)/ 1000) % 60 ;
+
+      aTimer.value = addLeadingZero(aMinutes) + ':' + addLeadingZero(aSeconds);
+      bTimer.value = addLeadingZero(bMinutes) + ':' + addLeadingZero(bSeconds);
+      
+      if (aMinutes == 0 && aSeconds == 0) {
+        winner = 'b';
+        document.getElementById("timers").className = '';
+        a.className = a.className + " loser";
+        b.className = b.className + " winner";
+      } else if (bMinutes == 0 && bSeconds == 0) {
+        winner = 'a';
+        document.getElementById("timers").className = '';
+        a.className = a.className + " winner";
+        b.className = b.className + " loser";
+      } else {
+        mainLoopTimeout = window.setTimeout(mainLoop, 1000 / 60);
+      }      
+    }
+
+    function addLeadingZero(n) {
+      if ( n < 10 && n > -10 ) {
+        return '0' + n;
+      } else {
+        return ''  + n;
+      }
+    }
+
+    function setRunningBackground() {
+      if (winner) { return; }
+      if (runningTimer == 'a') {
+        a.className = a.className.replace(/\s*running\s*/, '') + " running";
+        b.className = b.className.replace(/\s*running\s*/, '');
+      } else if (runningTimer == 'b') {
+        a.className = a.className.replace(/\s*running\s*/, '');
+        b.className = b.className.replace(/\s*running\s*/, '') + " running";
+      }
+    };
+
+    function switchTimer() {
+      if (winner) { return; }
+      var remainingMs = getRemainingMs();
+
+      aRemainingMsAtSwitch = remainingMs.a;
+      bRemainingMsAtSwitch = remainingMs.b;
+      switchTime           = remainingMs.currentTime;
+      runningTimer         = (runningTimer == 'a' ? 'b' : 'a');
+      setRunningBackground();
+    }
+
+    function startOrStop () {
+      if (winner) { return; }
+      if (!mainLoopTimeout) {
+        // start
+        aTimer.blur();
+        bTimer.blur();
+        switchTime = new Date();
+        pullTimesFromInput();
+        mainLoopTimeout = window.setTimeout(mainLoop, 1000 / 60);
+        document.getElementById("timers").className = "started";
+      } else {
+        window.clearTimeout(mainLoopTimeout);
+        mainLoopTimeout = undefined;
+        document.getElementById("timers").className = "";
+      }
+    }
+
+    setRunningBackground();
+
+    document.body.addEventListener('keyup', function (e) { 
+      if (e.keyCode == 32) { switchTimer(); } // space
+      if (e.keyCode == 83) { startOrStop(); } // s
+      if (e.keyCode == 80) { startOrStop(); } // p
+    });
+
+  </script>
+</body>
+</html>
