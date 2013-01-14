@@ -24,16 +24,31 @@
     .started .timer.running input { opacity: 1.0; color: green; }
     .loser   { background: red; }
     .winner  { background: green; }
+    #instructions {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      padding: 1em;
+      color: #ddd;
+      background: rgba(0,0,0,0.88);
+    }
+    .key { font-style: italic; color: white;}
+    .started #instructions { display: none; }
   </style>
 </head>
 <body>
-  <div id="timers">
-    <div id="a" class="timer">
-      <input type="text" value="05:00" />
-    </div>
-    <div id="b" class="timer">
-      <input type="text" value="05:00" />
-    </div>
+  <div id="a" class="timer">
+    <input type="text" value="05:00" />
+  </div>
+  <div id="b" class="timer">
+    <input type="text" value="05:00" />
+  </div>
+  <div id="instructions">
+    <span class="key">space</span> to switch turns (or to switch who starts).<br>
+    <span class="key">s</span> or <span class="key">p</span> to start or pause the timers.<br>
+    When paused, click a timer to edit the time.<br>
+    When the game is over, reload the page to reset.<br>
   </div>
   <script>
     var a      = document.getElementById("a");
