@@ -176,6 +176,15 @@
 
     setRunningBackground();
 
+    function reset() {
+      aTimer.value = '05:00';
+      bTimer.value = '05:00';
+      var runningTimer = 'a';
+      a.className = 'timer running';
+      b.className = 'timer';
+      mainLoopTimeout = undefined;
+      winner = undefined;
+    }
     document.body.addEventListener('keyup', function (e) { 
       if (e.keyCode == 32) { switchTimer(); } // space
       if (e.keyCode == 83) { startOrStop(); } // s
