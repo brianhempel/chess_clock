@@ -185,6 +185,30 @@
       mainLoopTimeout = undefined;
       winner = undefined;
     }
+      
+    /*multitouch event listeners*/
+    //doubletap: start game
+    var startGame = Hammer(window).on("doubletap", function(event) {
+      startOrStop();
+    });
+    
+    //single tap: switch timer
+    var touch_a = document.getElementById("a");
+    var touch_b = document.getElementById("b");
+    var aSwitch = Hammer(touch_a).on("tap", function(e) {
+      console.log ("Touched A");
+      if (runningTimer == "a") {
+        switchTimer();
+      }
+    });
+    var bSwitch = Hammer(touch_b).on("tap", function(e) {
+      console.log ("Touched B");
+      if (runningTimer == "b") {
+        switchTimer();
+      }
+    });
+    
+    /*keyboard event listeners*/
     document.body.addEventListener('keyup', function (e) { 
       if (e.keyCode == 32) { switchTimer(); } // space
       if (e.keyCode == 83) { startOrStop(); } // s
