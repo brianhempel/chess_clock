@@ -218,15 +218,15 @@
       
     /*multitouch event listeners*/
     //doubletap: start game
-    var startGame = Hammer(window).on("doubletap", function(event) {
+    var touchDocument = document.body;
+    var startGame = Hammer(touchDocument).on("doubletap", function(event) {
       startOrStop();
     });
     
     //single tap: switch timer
-    var touch_a = document.getElementById("a");
-    var touch_b = document.getElementById("b");
-    var aSwitch = Hammer(touch_a).on("tap", function(e) {
-      console.log ("Touched A");
+    var touchA = document.getElementById("a");
+    var touchB = document.getElementById("b");
+    var aSwitch = Hammer(touchA).on("tap", function(e) {
       if (runningTimer == "a") {
         switchTimer();
       }
