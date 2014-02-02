@@ -80,11 +80,12 @@
     var bTimer = b.getElementsByTagName('input')[0];
     var bAudio = document.getElementById("b_audio");
 
+    var bonusTime = 0;//5 * 1000;
 
     var switchTime, aRemainingMsAtSwitch, bRemainingMsAtSwitch;
 
-    var mainLoopTimeout;
     var runningTimer = 'a';
+    var mainLoopTimeout;
     var winner;
 
     function pullTimesFromInput () {
