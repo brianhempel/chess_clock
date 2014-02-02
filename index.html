@@ -222,14 +222,8 @@
       mainLoopTimeout = undefined;
       winner = undefined;
     }
-      
-    /*multitouch event listeners*/
-    //doubletap: start game
-    var touchDocument = document.body;
-    var startGame = Hammer(touchDocument).on("doubletap", function(event) {
-      startOrStop();
-    });
     
+<<<<<<< HEAD
     //single tap: switch timer
     var touchA = document.getElementById("a");
     var touchB = document.getElementById("b");
@@ -243,6 +237,8 @@
         switchTimer();
       }
     });
+=======
+>>>>>>> Edited multitouch ELs. Wrapped them in if statement that checks if device has multitouch functionality.
     function isTouchDevice() {
       return 'ontouchstart' in window // works on most browsers 
           || 'onmsgesturechange' in window; // works on ie10
