@@ -243,6 +243,42 @@
         switchTimer();
       }
     });
+    function isTouchDevice() {
+      return 'ontouchstart' in window // works on most browsers 
+          || 'onmsgesturechange' in window; // works on ie10
+    };
+    
+    if (isTouchDevice()) {
+      /*multitouch event listeners*/
+      //doubletap: start game
+      var touchDocument = document.body;
+      var startGame = Hammer(touchDocument).on("doubletap", function(e) {
+        startOrStop();
+      });
+  
+      //single tap: switch timer
+      var touchA = document.getElementById("a");
+      var touchB = document.getElementById("b");
+      var aSwitch = Hammer(touchA).on("tap", function(e) {
+        if (runningTimer == "a" && e.gesture.touches.length == 1) {
+          switchTimer();
+        }
+      });
+      var bSwitch = Hammer(touchB).on("tap", function(e) {
+        console.log(e);
+        if (runningTimer == "b" && e.gesture.touches.length == 1) {
+          switchTimer();
+        }
+      });
+  
+      //swipe down: refresh/reset game
+      Hammer(touchDocument).on("swipedown", function() {
+        console.log("Swiped down");
+      });
+      if ('ontouchstart' in window || 'onmsgesturechange' in window) {
+      
+      }    
+    }
     
     /*keyboard event listeners*/
     document.body.addEventListener('keyup', function (e) { 
