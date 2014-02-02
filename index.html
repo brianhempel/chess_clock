@@ -41,10 +41,24 @@
 </head>
 <body>
   <div id="a" class="timer">
+  <div id="a" class="timer running">
     <input type="text" value="05:00" />
+    <audio id="a_audio" preload="auto" >
+      <source src="click.mp3" type="audio/mpeg"></source>
+      <source src="click.ogg" type="audio/ogg"></source>
+      <embed height="50" width="100" src="click.mp3">
+    </audio>
   </div>
   <div id="b" class="timer">
     <input type="text" value="05:00" />
+    <audio id="b_audio" preload="auto" >
+      <source src="reverseclick.mp3" type="audio/mpeg"></source>
+      <source src="reverseclick.ogg" type="audio/ogg"></source>
+      <embed height="50" width="100" src="reverseclick.mp3">
+    </audio>
+  </div>
+  <div id="bonus_time" class="controls">
+    <input type="text" value="0:00" />
   </div>
   <div id="instructions">
     <h1>Simple Chess Clock</h1>
