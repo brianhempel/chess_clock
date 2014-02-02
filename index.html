@@ -40,7 +40,6 @@
   </style>
 </head>
 <body>
-  <div id="a" class="timer">
   <div id="a" class="timer running">
     <input type="text" value="05:00" />
     <audio id="a_audio" preload="auto" >
@@ -72,11 +71,15 @@
       Want to make it better? Submit issues or changes on <a href="https://github.com/brianhempel/chess_clock/issues">GitHub</a>
     </p>
   </div>
+  <script src="hammer.min.js" type="text/javascript"></script>
   <script>
     var a      = document.getElementById("a");
     var aTimer = a.getElementsByTagName('input')[0];
+    var aAudio = document.getElementById("a_audio");
     var b      = document.getElementById("b");
     var bTimer = b.getElementsByTagName('input')[0];
+    var bAudio = document.getElementById("b_audio");
+
 
     var switchTime, aRemainingMsAtSwitch, bRemainingMsAtSwitch;
 
@@ -89,7 +92,8 @@
       aSeconds = aTimer.value.split(':')[1] || 0;
       bMinutes = bTimer.value.split(':')[0] || 15;
       bSeconds = bTimer.value.split(':')[1] || 0;
-
+      
+      //bonusTime
       aRemainingMsAtSwitch = (parseInt(aMinutes) * 60 + parseInt(aSeconds)) * 1000;
       bRemainingMsAtSwitch = (parseInt(bMinutes) * 60 + parseInt(bSeconds)) * 1000;
     }
@@ -103,7 +107,7 @@
         aRemainingMs = aRemainingMsAtSwitch - elapsedTimeSinceSwitch;
         bRemainingMs = bRemainingMsAtSwitch;
       } else {
-        aRemainingMs = aRemainingMsAtSwitch;        
+        aRemainingMs = aRemainingMsAtSwitch;
         bRemainingMs = bRemainingMsAtSwitch - elapsedTimeSinceSwitch;
       };
 
@@ -164,10 +168,24 @@
       if (winner) { return; }
       var remainingMs = getRemainingMs();
 
-      aRemainingMsAtSwitch = remainingMs.a;
-      bRemainingMsAtSwitch = remainingMs.b;
       switchTime           = remainingMs.currentTime;
-      runningTimer         = (runningTimer == 'a' ? 'b' : 'a');
+      
+      if (runningTimer == 'a') {
+        aRemainingMsAtSwitch = remainingMs.a + bonusTime;
+        bRemainingMsAtSwitch = remainingMs.b;
+        runningTimer = 'b';
+        
+        aAudio.currentTime = 0;
+        bAudio.play();
+      } else {
+        aRemainingMsAtSwitch = remainingMs.a;
+        bRemainingMsAtSwitch = remainingMs.b + bonusTime;
+        runningTimer = 'a';
+        
+        bAudio.currentTime = 0;
+        aAudio.play();
+      }
+      
       setRunningBackground();
     }
 
@@ -187,8 +205,6 @@
         document.body.className = "";
       }
     }
-
-    setRunningBackground();
 
     function reset() {
       aTimer.value = '05:00';
