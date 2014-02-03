@@ -223,22 +223,6 @@
       winner = undefined;
     }
     
-<<<<<<< HEAD
-    //single tap: switch timer
-    var touchA = document.getElementById("a");
-    var touchB = document.getElementById("b");
-    var aSwitch = Hammer(touchA).on("tap", function(e) {
-      if (runningTimer == "a") {
-        switchTimer();
-      }
-    });
-    var bSwitch = Hammer(touchB).on("tap", function(e) {
-      if (runningTimer == "b") {
-        switchTimer();
-      }
-    });
-=======
->>>>>>> Edited multitouch ELs. Wrapped them in if statement that checks if device has multitouch functionality.
     function isTouchDevice() {
       return 'ontouchstart' in window // works on most browsers 
           || 'onmsgesturechange' in window; // works on ie10
@@ -266,6 +250,11 @@
           switchTimer();
         }
       });
+  
+      //swipe down: refresh/reset game
+      // Hammer(touchDocument).on("swipedown", function() {
+//         console.log("Swiped down");
+//       });
     }
     
     /*keyboard event listeners*/
