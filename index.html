@@ -247,10 +247,10 @@
     }
     
     /*keyboard event listeners*/
-    document.body.addEventListener('keyup', function (e) { 
+    document.body.addEventListener('keydown', function (e) { 
       if (e.keyCode == 32) { switchTimer(); } // space
-      if (e.keyCode == 83) { startOrStop(); } // s
-      if (e.keyCode == 80) { startOrStop(); } // p
+      if (e.keyCode == 83) { startOrStop(); e.preventDefault(); } // s
+      if (e.keyCode == 80) { startOrStop(); e.preventDefault();} // p
     });
     
     //Google Analytics
