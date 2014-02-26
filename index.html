@@ -179,6 +179,8 @@
     var runningTimer = 'a';
     var mainLoopTimeout;
     var winner;
+    
+    var pullToRefresh; //variable assigned for touch devices only
 
     function pullTimesFromInput () {
       aMinutes = aTimer.value.split(':')[0] || 15;
@@ -261,7 +263,7 @@
       if (winner) { return; }
       var remainingMs = getRemainingMs();
 
-      switchTime           = remainingMs.currentTime;
+      switchTime      = remainingMs.currentTime;
       
       if (runningTimer == 'a') {
         aRemainingMsAtSwitch = remainingMs.a + bonusTime;
@@ -287,16 +289,35 @@
       if (!mainLoopTimeout) {
         // start
         aTimer.blur();
+        aTimer.setAttribute("readonly",true); //prevents editing time if game in progress
         bTimer.blur();
+        bTimer.setAttribute("readonly",true);/prevents editing time if game in progress
         switchTime = new Date();
         pullTimesFromInput();
         mainLoopTimeout = window.setTimeout(mainLoop, 1000 / 60);
         document.body.className = "started";
       } else {
+        //stop
+        aTimer.removeAttribute("readonly"); //allow editing time when not in progress
+        bTimer.removeAttribute("readonly");
         window.clearTimeout(mainLoopTimeout);
         mainLoopTimeout = undefined;
         document.body.className = "";
       }
+    }
+    
+    function reset() {
+      if (mainLoopTimeout) {
+        return false;//don't reset if game in progress
+      }
+      
+      aTimer.value = '05:00';
+      bTimer.value = '05:00';
+      var runningTimer = 'a';
+      a.className = 'timer running';
+      b.className = 'timer';
+      mainLoopTimeout = undefined;
+      winner = undefined;
     }
     
     function isTouchDevice() {
@@ -338,6 +359,8 @@
       if (e.keyCode == 32) { switchTimer(); } // space
       if (e.keyCode == 83) { startOrStop(); e.preventDefault(); } // s
       if (e.keyCode == 80) { startOrStop(); e.preventDefault();} // p
+      if (e.keyCode == 82) { reset(); } // r
+      if (e.keyCode == 27) { reset(); } // esc
     });
     
     //Google Analytics
