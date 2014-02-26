@@ -291,7 +291,7 @@
         aTimer.blur();
         aTimer.setAttribute("readonly",true); //prevents editing time if game in progress
         bTimer.blur();
-        bTimer.setAttribute("readonly",true);/prevents editing time if game in progress
+        bTimer.setAttribute("readonly",true);//prevents editing time if game in progress
         switchTime = new Date();
         pullTimesFromInput();
         mainLoopTimeout = window.setTimeout(mainLoop, 1000 / 60);
