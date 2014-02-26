@@ -325,6 +325,80 @@
           || 'onmsgesturechange' in window; // works on ie10
     };
     
+    var PullToRefresh = (function () {
+      function Main() {
+        var self = this;
+        //this.draggedDown = false;
+        this.wrapper = document.getElementById("pull_refresh");
+        this.message = document.getElementById("pull_refresh_message").getElementsByTagName("p")[0];
+        this.icon = document.getElementById("refresh_icon");
+        this.breakpoint = 40;
+        this.dragged = false;
+        this.triggeredBreak = false;
+        
+        Hammer(document.body).on("dragdown release", function(e) {
+          self.eventHandler(e);
+        });
+      }
+      
+      Main.prototype.eventHandler = function(e) {        
+        if (mainLoopTimeout) {
+          return false;//do nothing if game in progress
+        }
+        
+        var self = this;
+                
+        switch(e.type) {
+          case "dragdown": 
+            e.gesture.preventDefault();
+            this.dragged = true;            
+            var deltaY = e.gesture.deltaY * 0.25;
+            self.dragDown(deltaY);
+            
+            if (deltaY > this.breakpoint) {
+              self.icon.className = this.icon.className.replace(/\s*arrowup\s*/, '')  + " arrowup";
+              self.message.innerHTML = "Release to refresh...";
+              this.triggeredBreak = true;
+            } else if (deltaY < this.breakpoint && this.triggeredBreak == true) {
+              self.resetWrapper();
+            }
+            
+            break;
+          case "release":
+            if (this.dragged) {
+              self.slideUp(0);
+              this.dragged = false;
+              this.triggeredBreak = false;
+              reset();
+            }
+            break;
+      
+        }
+      };
+      
+      Main.prototype.dragDown = function(deltaY) {
+        this.wrapper.style.webkitTransform = "translate(0px," + deltaY + "px)";
+      };
+      
+      Main.prototype.slideUp = function(deltaY) {
+        var self = this;
+        self.wrapper.className = self.wrapper.className.replace(/\s*slideup\s*/,'') + " slideup";
+        self.wrapper.style.webkitTransform = "translate(0px," + deltaY + "px)";
+        
+        setTimeout(function() {
+          self.resetWrapper();
+        }, 500);//delay until slide up animation is for sure complete (> CSS effect transition time)
+      };
+      
+      Main.prototype.resetWrapper = function() {
+        this.wrapper.className = this.wrapper.className.replace(/\s*slideup\s*/,'');
+        this.icon.className = this.icon.className.replace(/\s*arrowup\s*/, '');
+        this.message.innerHTML = "Pull to refresh...";
+      };
+
+      return Main; //return constructor to make new object
+    })();
+    
     if (isTouchDevice()) {
       /*multitouch event listeners*/
       //doubletap: start game
