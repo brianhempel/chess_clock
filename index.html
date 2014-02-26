@@ -10,8 +10,7 @@
       font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", helvetica, arial, sans-serif;
       font-weight: 300;
     }
-    html, body {height: 100%;}
-    body { margin: 0; }
+    
     .timer  {
       float: left;
       width: 50%;
@@ -20,11 +19,11 @@
       height: 100%;
     }
     .timer input {
-      margin: 47% 0 0;
-      font-size: 100px;
+      margin: 50% 0 0;
+      font-size: 6em;
       text-align: center;
-      width: 75%;
-      border: solid 4px black;
+      width: 65%;
+      border: solid 0.05em black;
       background: none;
     }
     .running { background: white; }
@@ -41,7 +40,9 @@
       background: rgba(0,0,0,0.88);
     }
     .key { font-style: italic; color: white;}
-    .started #instructions { display: none; }
+    /*.started #instructions {
+      -webkit-transform: translate(0, 90px);
+    }*/
     a { color: #aaf; text-decoration: none; }
     .github_line { font-size: smaller; opacity: 0.7; font-style: italic; }
   </style>
