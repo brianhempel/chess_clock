@@ -325,6 +325,15 @@
           || 'onmsgesturechange' in window; // works on ie10
     };
     
+    function eventChildOfId (srcElement, id) {
+      if (srcElement !== null && srcElement.id == id) {
+        return true;
+      } else if (srcElement.parentElement !== null) {
+        return eventChildOfId(srcElement.parentElement, id);
+      } else {
+        return false;        
+      }
+    }
     var PullToRefresh = (function () {
       function Main() {
         var self = this;
@@ -401,31 +410,37 @@
     
     if (isTouchDevice()) {
       /*multitouch event listeners*/
-      //doubletap: start game
-      var touchDocument = document.body;
-      var startGame = Hammer(touchDocument).on("doubletap", function(e) {
-        startOrStop();
-      });
-  
-      //single tap: switch timer
-      var touchA = document.getElementById("a");
-      var touchB = document.getElementById("b");
-      var aSwitch = Hammer(touchA).on("tap", function(e) {
-        if (runningTimer == "a" && e.gesture.touches.length == 1) {
+      Hammer(document.body).on("tap", function(e) {
+        //handles all taps
+        
+        if (eventChildOfId(e.srcElement,"instructions")) {
+          //tap on instructions, start/stop game
+          startOrStop();
+        } else if (e.srcElement.id == "a" && runningTimer == "a") {
+          //tap on A while timer B is running, switch timer
+          switchTimer();
+        } else if (e.srcElement.id == "b" && runningTimer == "b") {
+          //tap on B while timer B is running, switch timer
           switchTimer();
         }
-      });
-      var bSwitch = Hammer(touchB).on("tap", function(e) {
-        console.log(e);
-        if (runningTimer == "b" && e.gesture.touches.length == 1) {
-          switchTimer();
+        
+        //disable switch move when user taps input to edit time
+        if (e.srcElement.nodeName == "INPUT") {
+          console.log("Touched Timer");
+          e.stopPropagation();
         }
       });
-  
+      
       //swipe down: refresh/reset game
-      // Hammer(touchDocument).on("swipedown", function() {
-//         console.log("Swiped down");
-//       });
+      pullToRefresh = new PullToRefresh();
+      
+      //change instructions for touch
+      document.getElementById("instructions").getElementsByTagName("p")[0].innerHTML = '<span class="key">Tap your side</span> to switch turns (or to switch who starts).<br> <span class="key">Tap these instructions</span> to start or pause the timers.<br> When paused, click a timer to edit the time.<br> When the game is over, pull down to refresh.';
+      
+      //Prevent default response to touch & drag. i.e. disable iOS scroll and elastic bounce effect
+      document.ontouchmove = function(e) {
+        e.preventDefault();
+      }
     }
     
     /*keyboard event listeners*/
