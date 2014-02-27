@@ -42,9 +42,9 @@
       background: rgba(0,0,0,0.88);
     }
     .key { font-style: italic; color: white;}
-    /*.started #instructions {
-      -webkit-transform: translate(0, 90px);
-    }*/
+    .started #instructions p {
+      display: none;
+    }
     a { color: #aaf; text-decoration: none; }
     .github_line { font-size: smaller; opacity: 0.7; font-style: italic; }
     
@@ -157,7 +157,7 @@
       <span class="key">space</span> to switch turns (or to switch who starts).<br>
       <span class="key">s</span> or <span class="key">p</span> to start or pause the timers.<br>
       When paused, click a timer to edit the time.<br>
-      When the game is over, reload the page to reset.
+      When the game is over, <span class="key">r</span> or <span class="key">esc</span> to reset.
     </p>
     <p class="github_line">
       Want to make it better? Submit issues or changes on <a href="https://github.com/brianhempel/chess_clock/issues">GitHub</a>
