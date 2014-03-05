@@ -67,7 +67,7 @@
       position: absolute;
       text-align: center;
       width: 100%;
-      bottom: 20px; 
+      bottom: 10px; 
     }
     
     #pull_refresh_message p {
@@ -78,7 +78,6 @@
     #refresh_icon {
       position: absolute;
       margin-left: 15%;
-      bottom: 10%;
     }
 
     #refresh_icon.arrow {
@@ -342,7 +341,6 @@
     var PullToRefresh = (function () {
       function Main() {
         var self = this;
-        //this.draggedDown = false;
         this.wrapper = document.getElementById("pull_refresh");
         this.message = document.getElementById("pull_refresh_message").getElementsByTagName("p")[0];
         this.icon = document.getElementById("refresh_icon");
@@ -366,22 +364,29 @@
           case "dragdown": 
             e.gesture.preventDefault();
             this.dragged = true;            
-            var deltaY = e.gesture.deltaY * 0.25;
+            var deltaY = e.gesture.deltaY * 0.5;
             self.dragDown(deltaY);
             
             if (deltaY > this.breakpoint) {
+              //if user pulls it down past breakpoint
               self.icon.className = this.icon.className.replace(/\s*arrowup\s*/, '')  + " arrowup";
               self.message.innerHTML = "Release to refresh...";
               this.triggeredBreak = true;
             } else if (deltaY < this.breakpoint && this.triggeredBreak == true) {
+              //if user pulls it back up, don't reset
+              this.triggeredBreak = false;
               self.resetWrapper();
             }
             
             break;
           case "release":
             if (this.dragged) {
-              self.slideUp(0);
+              //slide up, if dragged down
               this.dragged = false;
+              self.slideUp(0);
+            }
+            if (this.triggeredBreak) {
+              //reset, only if user past breakpoint
               this.triggeredBreak = false;
               reset();
             }
