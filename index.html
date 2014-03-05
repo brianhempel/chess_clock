@@ -270,15 +270,20 @@
         bRemainingMsAtSwitch = remainingMs.b;
         runningTimer = 'b';
         
-        aAudio.currentTime = 0;
-        bAudio.play();
+        try {
+          aAudio.currentTime = 0;
+          bAudio.play();
+        } catch (e) {}//try playing audio, discard error (HTML5 audio not fully supported by mobile)
+        
       } else {
         aRemainingMsAtSwitch = remainingMs.a;
         bRemainingMsAtSwitch = remainingMs.b + bonusTime;
         runningTimer = 'a';
         
-        bAudio.currentTime = 0;
-        aAudio.play();
+        try {
+          bAudio.currentTime = 0;
+          aAudio.play();
+        } catch (e) {}//try playing audio, discard error (HTML5 audio not fully supported by mobile)
       }
       
       setRunningBackground();
