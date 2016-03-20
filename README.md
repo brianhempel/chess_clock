@@ -1,4 +1,4 @@
-Visit [simplechessclock.com](http://simplechessclock.com) to try it out.
+Visit [brianhempel.github.io/chess_clock](https://brianhempel.github.io/chess_clock/) to try it out.
 
 Pull requests welcome.
 
