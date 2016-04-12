@@ -2,22 +2,30 @@
 <html>
 <head>
   <title>Simple Chess Clock</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="user-scalable=0 width=device-width"/>
   <meta name="description" content="A simple, pretty, online chess clock. Designed to be easy to use.">
   <style>
-    body { margin: 0; overflow: hidden; }
+    html, body {height: 100%; background-color: #ddd;}
+    body { margin: 0;}
+    h1, h2, h3, h4, h5, h6, p {
+      font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", helvetica, arial, sans-serif;
+      font-weight: 300;
+    }
+    
     .timer  {
       float: left;
       width: 50%;
       text-align: center;
       background: #777;
-      height: 3000px;
+      height: 100%;
     }
     .timer input {
-      margin: 47% 0 0;
-      font-size: 100px;
+      margin: 50% 0 0;
+      font-size: 6em;
       text-align: center;
-      width: 75%;
-      border: solid 4px black;
+      width: 65%;
+      border: solid 0.05em black;
       background: none;
     }
     .running { background: white; }
@@ -34,48 +42,152 @@
       background: rgba(0,0,0,0.88);
     }
     .key { font-style: italic; color: white;}
-    .started #instructions { display: none; }
+    .started #instructions p {
+      display: none;
+    }
     a { color: #aaf; text-decoration: none; }
     .github_line { font-size: smaller; opacity: 0.7; font-style: italic; }
+    
+    /* Pull refresh styles */
+    #pull_refresh {
+      box-shadow: inset 0 -5px 5px #ABABAB;
+      position: absolute;
+      width: 100%;
+      height: 250px;
+      top: -250px;
+      background-color: #ddd;
+    }
+    
+    .slideup {
+      transition: -transform 0.4s ease-in;
+      -webkit-transition: -webkit-transform 0.4s ease-in;
+    }
+    
+    #pull_refresh_message {
+      position: absolute;
+      text-align: center;
+      width: 100%;
+      bottom: 10px; 
+    }
+    
+    #pull_refresh_message p {
+      margin: 0;
+      color: #777;
+    }
+    
+    #refresh_icon {
+      position: absolute;
+      margin-left: 15%;
+    }
+
+    #refresh_icon.arrow {
+      background: no-repeat center top url(arrow.png);
+      background-size: 36px 14px;
+      width: 36px;
+      height: 14px;
+      transform:rotate(90deg);
+      -webkit-transform:rotate(90deg);
+      -ms-transform:rotate(90deg);      
+    }
+    
+    #refresh_icon.arrowup {
+      transform:rotate(-90deg);
+      -webkit-transform:rotate(-90deg);
+      -ms-transform:rotate(90deg);
+      
+      transition: -transform 0.5s ease-out;
+      -webkit-transition: -webkit-transform 0.5s ease-out;
+      -ms-transition: -ms-transform 0.5s ease-out;
+    }
+  
+    #refresh_icon.loading {
+      background: no-repeat center top url(loading.gif);
+      background-size: 24px 24px;	
+      width: 24px;
+      height: 24px;
+    }
+    
+    /* Smartphones */
+    @media only screen 
+    and (min-device-width : 320px) 
+    and (max-device-width : 480px)  { 
+        /* Retina-specific */
+        .timer input {
+          font-size: 2em;
+        }
+        
+        #refresh_icon {
+          background: no-repeat left center url(loading@2x.gif);
+          background-size: 24px 24px;	
+          width: 24px;
+          height: 24px;
+        }
+    }
+    
   </style>
 </head>
 <body>
-  <div id="a" class="timer">
-    <input type="text" value="05:00" />
+  <div id="pull_refresh">
+    <div id="pull_refresh_message">
+      <div id="refresh_icon" class="arrow"></div>
+      <p>Pull to refresh...</p>
+    </div>
+  </div>
+  <div id="a" class="timer running">
+    <input type="text" pattern="[0-9]*" value="05:00" />
+    <audio id="a_audio" preload="auto" >
+      <source src="click.mp3" type="audio/mpeg"></source>
+      <source src="click.ogg" type="audio/ogg"></source>
+      <embed height="50" width="100" src="click.mp3">
+    </audio>
   </div>
   <div id="b" class="timer">
-    <input type="text" value="05:00" />
+    <input type="text" pattern="[0-9]*" value="05:00" />
+    <audio id="b_audio" preload="auto" >
+      <source src="reverseclick.mp3" type="audio/mpeg"></source>
+      <source src="reverseclick.ogg" type="audio/ogg"></source>
+      <embed height="50" width="100" src="reverseclick.mp3">
+    </audio>
   </div>
+
   <div id="instructions">
     <h1>Simple Chess Clock</h1>
     <p>
       <span class="key">space</span> to switch turns (or to switch who starts).<br>
       <span class="key">s</span> or <span class="key">p</span> to start or pause the timers.<br>
       When paused, click a timer to edit the time.<br>
-      When the game is over, reload the page to reset.
+      When the game is over, <span class="key">r</span> or <span class="key">esc</span> to reset.
     </p>
     <p class="github_line">
       Want to make it better? Submit issues or changes on <a href="https://github.com/brianhempel/chess_clock/issues">GitHub</a>
     </p>
   </div>
+  <script src="hammer.min.js" type="text/javascript"></script>
   <script>
     var a      = document.getElementById("a");
     var aTimer = a.getElementsByTagName('input')[0];
+    var aAudio = document.getElementById("a_audio");
     var b      = document.getElementById("b");
     var bTimer = b.getElementsByTagName('input')[0];
+    var bAudio = document.getElementById("b_audio");
+
+    var bonusTime = 0;//5 * 1000;
 
     var switchTime, aRemainingMsAtSwitch, bRemainingMsAtSwitch;
 
-    var mainLoopTimeout;
     var runningTimer = 'a';
+    var mainLoopTimeout;
     var winner;
+    
+    var pullToRefresh; //variable assigned for touch devices only
 
     function pullTimesFromInput () {
       aMinutes = aTimer.value.split(':')[0] || 15;
       aSeconds = aTimer.value.split(':')[1] || 0;
       bMinutes = bTimer.value.split(':')[0] || 15;
       bSeconds = bTimer.value.split(':')[1] || 0;
-
+      
+      //bonusTime
       aRemainingMsAtSwitch = (parseInt(aMinutes) * 60 + parseInt(aSeconds)) * 1000;
       bRemainingMsAtSwitch = (parseInt(bMinutes) * 60 + parseInt(bSeconds)) * 1000;
     }
@@ -89,7 +201,7 @@
         aRemainingMs = aRemainingMsAtSwitch - elapsedTimeSinceSwitch;
         bRemainingMs = bRemainingMsAtSwitch;
       } else {
-        aRemainingMs = aRemainingMsAtSwitch;        
+        aRemainingMs = aRemainingMsAtSwitch;
         bRemainingMs = bRemainingMsAtSwitch - elapsedTimeSinceSwitch;
       };
 
@@ -150,10 +262,29 @@
       if (winner) { return; }
       var remainingMs = getRemainingMs();
 
-      aRemainingMsAtSwitch = remainingMs.a;
-      bRemainingMsAtSwitch = remainingMs.b;
-      switchTime           = remainingMs.currentTime;
-      runningTimer         = (runningTimer == 'a' ? 'b' : 'a');
+      switchTime      = remainingMs.currentTime;
+      
+      if (runningTimer == 'a') {
+        aRemainingMsAtSwitch = remainingMs.a + bonusTime;
+        bRemainingMsAtSwitch = remainingMs.b;
+        runningTimer = 'b';
+        
+        try {
+          aAudio.currentTime = 0;
+          bAudio.play();
+        } catch (e) {}//try playing audio, discard error (HTML5 audio not fully supported by mobile)
+        
+      } else {
+        aRemainingMsAtSwitch = remainingMs.a;
+        bRemainingMsAtSwitch = remainingMs.b + bonusTime;
+        runningTimer = 'a';
+        
+        try {
+          bAudio.currentTime = 0;
+          aAudio.play();
+        } catch (e) {}//try playing audio, discard error (HTML5 audio not fully supported by mobile)
+      }
+      
       setRunningBackground();
     }
 
@@ -162,26 +293,185 @@
       if (!mainLoopTimeout) {
         // start
         aTimer.blur();
+        aTimer.setAttribute("readonly",true); //prevents editing time if game in progress
         bTimer.blur();
+        bTimer.setAttribute("readonly",true);//prevents editing time if game in progress
         switchTime = new Date();
         pullTimesFromInput();
         mainLoopTimeout = window.setTimeout(mainLoop, 1000 / 60);
         document.body.className = "started";
       } else {
+        //stop
+        aTimer.removeAttribute("readonly"); //allow editing time when not in progress
+        bTimer.removeAttribute("readonly");
         window.clearTimeout(mainLoopTimeout);
         mainLoopTimeout = undefined;
         document.body.className = "";
       }
     }
+    
+    function reset() {
+      if (mainLoopTimeout) {
+        return false;//don't reset if game in progress
+      }
+      
+      aTimer.value = '05:00';
+      bTimer.value = '05:00';
+      var runningTimer = 'a';
+      a.className = 'timer running';
+      b.className = 'timer';
+      mainLoopTimeout = undefined;
+      winner = undefined;
+    }
+    
+    function isTouchDevice() {
+      return 'ontouchstart' in window // works on most browsers 
+          || 'onmsgesturechange' in window; // works on ie10
+    };
+    
+    function eventChildOfId (srcElement, id) {
+      if (srcElement !== null && srcElement.id == id) {
+        return true;
+      } else if (srcElement.parentElement !== null) {
+        return eventChildOfId(srcElement.parentElement, id);
+      } else {
+        return false;        
+      }
+    }
+    var PullToRefresh = (function () {
+      function Main() {
+        var self = this;
+        this.wrapper = document.getElementById("pull_refresh");
+        this.message = document.getElementById("pull_refresh_message").getElementsByTagName("p")[0];
+        this.icon = document.getElementById("refresh_icon");
+        this.breakpoint = 40;
+        this.dragged = false;
+        this.triggeredBreak = false;
+        
+        Hammer(document.body).on("dragdown release", function(e) {
+          self.eventHandler(e);
+        });
+      }
+      
+      Main.prototype.eventHandler = function(e) {        
+        if (mainLoopTimeout) {
+          return false;//do nothing if game in progress
+        }
+        
+        var self = this;
+                
+        switch(e.type) {
+          case "dragdown": 
+            e.gesture.preventDefault();
+            this.dragged = true;            
+            var deltaY = e.gesture.deltaY * 0.5;
+            self.dragDown(deltaY);
+            
+            if (deltaY > this.breakpoint) {
+              //if user pulls it down past breakpoint
+              self.icon.className = this.icon.className.replace(/\s*arrowup\s*/, '')  + " arrowup";
+              self.message.innerHTML = "Release to refresh...";
+              this.triggeredBreak = true;
+            } else if (deltaY < this.breakpoint && this.triggeredBreak == true) {
+              //if user pulls it back up, don't reset
+              this.triggeredBreak = false;
+              self.resetWrapper();
+            }
+            
+            break;
+          case "release":
+            if (this.dragged) {
+              //slide up, if dragged down
+              this.dragged = false;
+              self.slideUp(0);
+            }
+            if (this.triggeredBreak) {
+              //reset, only if user past breakpoint
+              this.triggeredBreak = false;
+              reset();
+            }
+            break;
+      
+        }
+      };
+      
+      Main.prototype.dragDown = function(deltaY) {
+        this.wrapper.style.webkitTransform = "translate(0px," + deltaY + "px)";
+      };
+      
+      Main.prototype.slideUp = function(deltaY) {
+        var self = this;
+        self.wrapper.className = self.wrapper.className.replace(/\s*slideup\s*/,'') + " slideup";
+        self.wrapper.style.webkitTransform = "translate(0px," + deltaY + "px)";
+        
+        setTimeout(function() {
+          self.resetWrapper();
+        }, 500);//delay until slide up animation is for sure complete (> CSS effect transition time)
+      };
+      
+      Main.prototype.resetWrapper = function() {
+        this.wrapper.className = this.wrapper.className.replace(/\s*slideup\s*/,'');
+        this.icon.className = this.icon.className.replace(/\s*arrowup\s*/, '');
+        this.message.innerHTML = "Pull to refresh...";
+      };
 
-    setRunningBackground();
-
-    document.body.addEventListener('keyup', function (e) { 
+      return Main; //return constructor to make new object
+    })();
+    
+    if (isTouchDevice()) {
+      /*multitouch event listeners*/
+      Hammer(document.body).on("tap", function(e) {
+        //handles all taps
+        
+        if (eventChildOfId(e.srcElement,"instructions")) {
+          //tap on instructions, start/stop game
+          startOrStop();
+        } else if (e.srcElement.id == "a" && runningTimer == "a") {
+          //tap on A while timer B is running, switch timer
+          switchTimer();
+        } else if (e.srcElement.id == "b" && runningTimer == "b") {
+          //tap on B while timer B is running, switch timer
+          switchTimer();
+        }
+        
+        //disable switch move when user taps input to edit time
+        if (e.srcElement.nodeName == "INPUT") {
+          console.log("Touched Timer");
+          e.stopPropagation();
+        }
+      });
+      
+      //swipe down: refresh/reset game
+      pullToRefresh = new PullToRefresh();
+      
+      //change instructions for touch
+      document.getElementById("instructions").getElementsByTagName("p")[0].innerHTML = '<span class="key">Tap your side</span> to switch turns (or to switch who starts).<br> <span class="key">Tap these instructions</span> to start or pause the timers.<br> When paused, click a timer to edit the time.<br> When the game is over, pull down to refresh.';
+      
+      //Prevent default response to touch & drag. i.e. disable iOS scroll and elastic bounce effect
+      document.ontouchmove = function(e) {
+        e.preventDefault();
+      }
+    }
+    
+    /*keyboard event listeners*/
+    document.body.addEventListener('keydown', function (e) { 
       if (e.keyCode == 32) { switchTimer(); } // space
-      if (e.keyCode == 83) { startOrStop(); } // s
-      if (e.keyCode == 80) { startOrStop(); } // p
+      if (e.keyCode == 83) { startOrStop(); e.preventDefault(); } // s
+      if (e.keyCode == 80) { startOrStop(); e.preventDefault();} // p
+      if (e.keyCode == 82) { reset(); } // r
+      if (e.keyCode == 27) { reset(); } // esc
     });
+    
+    //Google Analytics
+    if (window.location.host.match(/simplechessclock.com/)) {
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+      ga('create', 'UA-41943438-1', 'simplechessclock.com');
+      ga('send', 'pageview');
+    }
   </script>
 </body>
 </html>
