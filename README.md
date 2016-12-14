@@ -4,7 +4,7 @@ Pull requests welcome.
 
 ## Development
 
-You need a few things to run the tests: [ChromeDriver](https://code.google.com/p/chromedriver/), [Node.js](http://nodejs.org/), the Javascript [selenium-webdriver package](http://selenium.googlecode.com/git/docs/api/javascript/index.html), and [Mocha](http://visionmedia.github.io/mocha/). On Mac OS X, this process is easier with [Homebrew](http://brew.sh/).
+You need a few things to run the tests: [ChromeDriver](https://code.google.com/p/chromedriver/), [Node.js](http://nodejs.org/), the Javascript [selenium-webdriver package](http://selenium.googlecode.com/git/docs/api/javascript/index.html), and [Mocha](http://mochajs.org/). On Mac OS X, this process is easier with [Homebrew](http://brew.sh/).
 
 
 ```
@@ -34,5 +34,5 @@ Helpful docs:
 - [Selenium Javascript guide](http://selenium.googlecode.com/git/docs/api/javascript/index.html) that should prove helpful.
 - [Things you can do with a DOM node](http://selenium.googlecode.com/git/docs/api/javascript/class_webdriver_WebElement.html)
 - [Things you can do with the driver object](http://selenium.googlecode.com/git/docs/api/javascript/class_webdriver_WebDriver.html)
-- [Mocha test framework docs](http://visionmedia.github.io/mocha/)
+- [Mocha test framework docs](http://mochajs.org/)
 - [Node's assert module docs](http://nodejs.org/api/assert.html)
